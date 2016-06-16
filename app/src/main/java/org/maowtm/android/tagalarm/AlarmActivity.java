@@ -12,7 +12,7 @@ public class AlarmActivity extends AppCompatActivity {
         this.findViewById(R.id.set).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Alarms.setAlert(AlarmActivity.this, Alarms.calculateNextTime(7, 0, new Alarms.DaysOfWeek((byte)0)), 0);
+                Alarms.setAlert(AlarmActivity.this, System.currentTimeMillis() + (10 * 1000), 0);
             }
         });
         this.findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {

@@ -4,10 +4,18 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import java.util.Calendar;
-import java.util.logging.Logger;
+
+/*
+    * TODO: Save alarms
+    * TODO: Handle multiple alarms (recalculate next alarm and send it to AlarmManager when alarm update / app restart / reboot)
+    * TODO: Custom volume / ringtone
+    * TODO: Vibrate when can't play ringtone
+    * TODO: Proof-of-wake
+    * TODO: Show notification before alarm ring and allow "Dismiss now".
+    * TODO: Allow play music
+*/
 
 public class Alarms {
     public static final String ACTION_ALARM_ALERT = "org.maowtm.android.tagalarm.actions.ALARM_ALERT";
@@ -83,5 +91,12 @@ public class Alarms {
                     0, showIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             am.setAlarmClock(new AlarmManager.AlarmClockInfo(time, pendingShowIntent), sender);
         }
+    }
+    public static void showAlertUI(Context context, int alarmId) {
+        Intent alertUI = new Intent(context, AlertActivity.class);
+        alertUI.putExtra(Alarms.INTENT_EXTRA_ALARM_ID, alarmId);
+        alertUI.setFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION | Intent.FLAG_ACTIVITY_NEW_TASK |
+                Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        context.startActivity(alertUI);
     }
 }
