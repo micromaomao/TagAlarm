@@ -1,13 +1,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.maowtm.android.tagalarm">
 
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <permission android:name="org.maowtm.android.tagalarm.premission.READ" />
+    <permission android:name="org.maowtm.android.tagalarm.premission.ALERT" />
+    <permission android:name="org.maowtm.android.tagalarm.premission.WRITE" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
+        android:fullBackupContent="true"
         android:theme="@style/AppTheme">
 
         <activity android:name=".AlarmActivity" android:label="@string/app_name" android:launchMode="singleInstance">
@@ -21,12 +24,18 @@
             android:excludeFromRecents="true"
             android:launchMode="singleInstance" />
 
-        <receiver android:name=".AlertReceiver">
+        <receiver android:name=".AlertReceiver"
+            android:permission="org.maowtm.android.tagalarm.premission.ALERT">
             <intent-filter>
                 <action android:name="org.maowtm.android.tagalarm.actions.ALARM_ALERT" />
             </intent-filter>
         </receiver>
-        <service android:name=".AlertService" />
+        <service android:name=".AlertService" android:exported="false"/>
+        <provider
+            android:authorities="org.maowtm.android.tagalarm.auth"
+            android:name=".AlarmProvider"
+            android:readPermission="org.maowtm.android.tagalarm.premission.READ"
+            android:writePermission="org.maowtm.android.tagalarm.premission.WRITE" />
     </application>
 
 </manifest>

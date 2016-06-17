@@ -10,7 +10,7 @@ import android.util.Log;
 public class AlertReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        int alarmId = intent.getIntExtra(Alarms.INTENT_EXTRA_ALARM_ID, -1);
+        long alarmId = intent.getLongExtra(Alarms.INTENT_EXTRA_ALARM_ID, -1);
         if (intent.getAction().equals(Alarms.ACTION_ALARM_ALERT) && alarmId >= 0) {
             Log.v("AlertReceiver", "received alarm id = " + alarmId);
             Intent notify = new Intent(Alarms.ACTION_ALARM_ALERT);
@@ -25,7 +25,7 @@ public class AlertReceiver extends BroadcastReceiver {
             nBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
             Notification notification = nBuilder.build();
             NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            nm.notify(alarmId, notification);
+            nm.notify((int)(alarmId % Integer.MAX_VALUE), notification);
 
             Alarms.showAlertUI(context, alarmId);
 
@@ -35,9 +35,9 @@ public class AlertReceiver extends BroadcastReceiver {
             context.startService(playAlarm);
         }
     }
-    public static void acceptDismiss(Context context, int alarmId) {
+    public static void acceptDismiss(Context context, long alarmId) {
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.cancel(alarmId);
+        nm.cancel((int)(alarmId % Integer.MAX_VALUE));
         Intent stopAlarm = new Intent(context, AlertService.class);
         stopAlarm.putExtra(Alarms.INTENT_EXTRA_ALARM_ID, alarmId);
         stopAlarm.setAction(AlertService.ACTION_STOP_ALARM);
