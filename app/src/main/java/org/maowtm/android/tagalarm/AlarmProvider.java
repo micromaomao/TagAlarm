@@ -24,7 +24,7 @@ public class AlarmProvider extends ContentProvider {
         uriM.addURI(AUTH, "alarm", URI_ALARM);
         uriM.addURI(AUTH, "alarm/#", URI_ALARM_ID);
     }
-    protected static class DatabaseHelper extends SQLiteOpenHelper {
+    protected class DatabaseHelper extends SQLiteOpenHelper {
         protected static final String dbName = "alarms.db";
         protected static final int CURRENT_VERSION = 1;
 
@@ -48,6 +48,7 @@ public class AlarmProvider extends ContentProvider {
                     "PRIMARY KEY(id)" +
                     ");");
             db.execSQL("INSERT INTO alarms (hours, minutes) VALUES (7, 0);");
+            AlarmProvider.this.recalculateNextTime(db, null, null);
         }
 
         @Override

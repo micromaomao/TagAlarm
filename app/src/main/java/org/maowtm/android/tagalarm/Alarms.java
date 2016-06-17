@@ -6,8 +6,10 @@ import android.content.ContentProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 
 import java.util.Calendar;
+import java.util.logging.Logger;
 
 /*
     * TODO: Save alarms
@@ -120,6 +122,7 @@ public abstract class Alarms {
         }
     }
     public static void setAlert(final Context context, final long time, final long alarmId) {
+        Log.d("reach", "setAlert");
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent alertIntent = new Intent(ACTION_ALARM_ALERT);
         alertIntent.putExtra(INTENT_EXTRA_ALARM_ID, alarmId);
