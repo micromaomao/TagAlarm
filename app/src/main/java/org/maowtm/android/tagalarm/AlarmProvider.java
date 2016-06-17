@@ -76,7 +76,7 @@ public class AlarmProvider extends ContentProvider {
                 break;
             case URI_ALARM_ID:
                 qb.setTables("alarms");
-                qb.appendWhere("_id = ");
+                qb.appendWhere("id = ");
                 qb.appendWhere(uri.getPathSegments().get(1));
                 break;
             default:
@@ -202,6 +202,7 @@ public class AlarmProvider extends ContentProvider {
                     if (count > 0)
                         recalculateNextTime(db, Integer.parseInt(rowId));
                 }
+                db.setTransactionSuccessful();
                 db.endTransaction();
                 break;
             case URI_ALARM:
@@ -211,11 +212,13 @@ public class AlarmProvider extends ContentProvider {
                 if (count > 0) {
                     recalculateNextTime(db, null, null);
                 }
+                db.setTransactionSuccessful();
                 db.endTransaction();
                 break;
             case URI_RECALCULATE:
                 db.beginTransaction();
                 count = recalculateNextTime(db, sel, selArgs);
+                db.setTransactionSuccessful();
                 db.endTransaction();
                 break;
             default:
@@ -243,6 +246,7 @@ public class AlarmProvider extends ContentProvider {
             throw new SQLException("Failed to insert row into " + uri);
         }
         recalculateNextTime(db, rowId);
+        db.setTransactionSuccessful();
         db.endTransaction();
         Uri newUri = ContentUris.withAppendedId(uri, rowId);
         getContext().getContentResolver().notifyChange(newUri, null);
