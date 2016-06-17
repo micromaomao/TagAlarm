@@ -18,6 +18,7 @@ import java.util.Set;
 public class AlertService extends Service {
     public static final String ACTION_PLAY_ALARM = "+";
     public static final String ACTION_STOP_ALARM = "-";
+    public static final String ACTION_RECALCULATE = ".";
     protected Set<Integer> alarms;
     protected MediaPlayer player;
     protected AudioManager am;

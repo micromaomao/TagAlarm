@@ -19,10 +19,12 @@ public class AlarmProvider extends ContentProvider {
     public static final String AUTH = "org.maowtm.android.tagalarm.auth";
     protected static final int URI_ALARM = 1;
     protected static final int URI_ALARM_ID = 2;
+    protected static final int URI_RECALCULATE = 3;
     protected static final UriMatcher uriM = new UriMatcher(UriMatcher.NO_MATCH);
     static {
         uriM.addURI(AUTH, "alarm", URI_ALARM);
         uriM.addURI(AUTH, "alarm/#", URI_ALARM_ID);
+        uriM.addURI(AUTH, "alarm/recalculate", URI_RECALCULATE);
     }
     protected class DatabaseHelper extends SQLiteOpenHelper {
         protected static final String dbName = "alarms.db";
@@ -44,8 +46,7 @@ public class AlarmProvider extends ContentProvider {
                     "`volume`REAL NOT NULL DEFAULT 1," +
                     "`ringtone`TEXT DEFAULT NULL," +
                     "`proofwake`TEXT NOT NULL DEFAULT '[]'," +
-                    "`allow_early_dismiss`INTEGER NOT NULL DEFAULT 1," +
-                    "PRIMARY KEY(id)" +
+                    "`allow_early_dismiss`INTEGER NOT NULL DEFAULT 1" +
                     ");");
             db.execSQL("INSERT INTO alarms (hours, minutes) VALUES (7, 0);");
             AlarmProvider.this.recalculateNextTime(db, null, null);
@@ -113,7 +114,7 @@ public class AlarmProvider extends ContentProvider {
             }
         }
         if (values.containsKey("nexttime")) {
-            Long nextTime = values.getAsLong("nextTime");
+            Long nextTime = values.getAsLong("nexttime");
             if (nextTime == null || nextTime < 0) {
                 throw new IllegalArgumentException("NextTime not valid.");
             }
@@ -144,10 +145,12 @@ public class AlarmProvider extends ContentProvider {
     protected void recalculateNextTime(SQLiteDatabase db, long alarmId) {
         this.recalculateNextTime(db, "id = " + alarmId, null);
     }
-    protected void recalculateNextTime(@NonNull SQLiteDatabase db, @Nullable String sel, @Nullable String[] selArgs) {
+    protected int recalculateNextTime(@NonNull SQLiteDatabase db, @Nullable String sel, @Nullable String[] selArgs) {
         Cursor cs = db.query("alarms", new String[]{"id", "hours", "minutes", "daysofweek"}, sel,
                 selArgs, null, null, null, null);
-        while (!cs.isAfterLast()) {
+        boolean empty = !cs.moveToFirst();
+        int count = 0;
+        while (!empty && !cs.isAfterLast()) {
             long nextTime = Alarms.calculateNextTime(cs.getInt(1), cs.getInt(2), new Alarms.DaysOfWeek((byte)cs.getInt(3)));
             ContentValues cv = new ContentValues();
             if (nextTime < 0) {
@@ -158,16 +161,19 @@ public class AlarmProvider extends ContentProvider {
             }
             checkOrThrow(cv);
             db.update("alarms", cv, "id = " + cs.getLong(0), null);
+            count ++;
             cs.moveToNext();
         }
         cs.close();
         cs = db.query("alarms", new String[] {"id", "nexttime"}, "enabled = 1 AND nexttime > " + System.currentTimeMillis()
                 , null, null, null, "nexttime ASC", "1");
-        if (cs.isAfterLast()) {
+        empty = !cs.moveToFirst();
+        if (empty) {
             Alarms.setAlert(this.getContext(), 0, -1);
         } else {
             Alarms.setAlert(this.getContext(), cs.getLong(1), cs.getLong(0));
         }
+        return count;
     }
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String sel, String[] selArgs) {
@@ -205,6 +211,11 @@ public class AlarmProvider extends ContentProvider {
                 if (count > 0) {
                     recalculateNextTime(db, null, null);
                 }
+                db.endTransaction();
+                break;
+            case URI_RECALCULATE:
+                db.beginTransaction();
+                count = recalculateNextTime(db, sel, selArgs);
                 db.endTransaction();
                 break;
             default:

@@ -3,19 +3,8 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <ListView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Interface TODO, testing only. Setting alarm at 10 seconds later."
-        android:textSize="20sp" />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/set"
-        android:text="Set" />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/cancel"
-        android:text="Cancel" />
+        android:layout_height="match_parent"
+        android:id="@+id/alarmslist"/>
 </LinearLayout>
