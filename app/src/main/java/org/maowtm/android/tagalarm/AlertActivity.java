@@ -24,11 +24,11 @@ public class AlertActivity extends Activity {
     }
     protected UpdateTimeRunnable updateTimeRunnable;
     protected Handler updateTimeHandler;
-    protected int alarmId;
+    protected long alarmId;
     @Override
     protected void onCreate(Bundle sis) {
         super.onCreate(sis);
-        this.alarmId = this.getIntent().getIntExtra(Alarms.INTENT_EXTRA_ALARM_ID, -1);
+        this.alarmId = this.getIntent().getLongExtra(Alarms.INTENT_EXTRA_ALARM_ID, -1);
         this.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
         this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
                                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |

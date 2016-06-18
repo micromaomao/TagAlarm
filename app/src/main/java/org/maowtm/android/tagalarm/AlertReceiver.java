@@ -3,14 +3,18 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.util.Log;
 
 public class AlertReceiver extends BroadcastReceiver {
     @Override
-    public void onReceive(Context context, Intent intent) {
-        long alarmId = intent.getLongExtra(Alarms.INTENT_EXTRA_ALARM_ID, -1);
+    public void onReceive(final Context context, Intent intent) {
+        final long alarmId = intent.getLongExtra(Alarms.INTENT_EXTRA_ALARM_ID, -1);
         if (intent.getAction().equals(Alarms.ACTION_ALARM_ALERT) && alarmId >= 0) {
             Log.v("AlertReceiver", "received alarm id = " + alarmId);
             Intent notify = new Intent(Alarms.ACTION_ALARM_ALERT);
@@ -33,6 +37,25 @@ public class AlertReceiver extends BroadcastReceiver {
             playAlarm.putExtra(Alarms.INTENT_EXTRA_ALARM_ID, alarmId);
             playAlarm.setAction(AlertService.ACTION_PLAY_ALARM);
             context.startService(playAlarm);
+
+            AsyncTask<Void, Void, Void> updateAlarmStatus = new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    Uri uri = Uri.parse("content://" + AlarmProvider.AUTH + "/alarm/" + alarmId);
+                    Cursor alrCsr = context.getContentResolver().query(uri,
+                            new String[] {"daysofweek", "enabled"}, null, null, null);
+                    if (!alrCsr.moveToFirst())
+                        return null;
+                    Alarms.DaysOfWeek dow = new Alarms.DaysOfWeek((byte) alrCsr.getInt(0));
+                    if (!dow.isRepeat() && alrCsr.getInt(1) > 0) {
+                        ContentValues cv = new ContentValues();
+                        cv.put("enabled", 0);
+                        context.getContentResolver().update(uri, cv, null, null);
+                    }
+                    return null;
+                }
+            };
+            updateAlarmStatus.execute((Void) null);
         }
     }
     public static void acceptDismiss(Context context, long alarmId) {

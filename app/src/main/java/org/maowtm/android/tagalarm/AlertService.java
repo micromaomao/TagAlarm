@@ -18,8 +18,7 @@ import java.util.Set;
 public class AlertService extends Service {
     public static final String ACTION_PLAY_ALARM = "+";
     public static final String ACTION_STOP_ALARM = "-";
-    public static final String ACTION_RECALCULATE = ".";
-    protected Set<Integer> alarms;
+    protected Set<Long> alarms;
     protected MediaPlayer player;
     protected AudioManager am;
     public final class ForceActivityFrontRunnable implements Runnable {
@@ -55,7 +54,7 @@ public class AlertService extends Service {
             this.stopSelf();
             return Service.START_NOT_STICKY;
         }
-        int alarmId = intent.getIntExtra(Alarms.INTENT_EXTRA_ALARM_ID, -1);
+        final long alarmId = intent.getLongExtra(Alarms.INTENT_EXTRA_ALARM_ID, -1);
         if (alarmId < 0) {
             return Service.START_NOT_STICKY;
         }
