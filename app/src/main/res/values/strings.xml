@@ -3,4 +3,6 @@
     <string name="noti_content">You must wake up and dismiss the alarm.</string>
     <string name="alert_title">Wake up pls!</string>
     <string name="alert_dismiss">Dismiss</string>
+    <string name="alarmitem_repeat">Repeat:</string>
+    <string name="alarmitem_repeat_no">(Only once)</string>
 </resources>

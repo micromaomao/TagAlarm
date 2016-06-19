@@ -2,14 +2,11 @@ package org.maowtm.android.tagalarm;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.ContentProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.util.Log;
 
 import java.util.Calendar;
-import java.util.logging.Logger;
 
 /*
     * TODO: Handle multiple alarms (recalculate next alarm and send it to AlarmManager when alarm update / app restart / reboot)
@@ -35,6 +32,9 @@ public abstract class Alarms {
                 throw new IllegalArgumentException("code not in range.");
             }
             this.mDays = code;
+        }
+        public DaysOfWeek(DaysOfWeek c) {
+            this(c.getCode());
         }
 
         // Bitmask of all repeating days, starting from Sunday
@@ -65,6 +65,9 @@ public abstract class Alarms {
             sb.append("Code: ");
             sb.append(this.mDays);
             return sb.toString();
+        }
+        public byte getCode() {
+            return this.mDays;
         }
         protected static int calDay2dowDay(int calDay) {
             return calDay - Calendar.SUNDAY;

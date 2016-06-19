@@ -48,7 +48,7 @@ public class AlarmProvider extends ContentProvider {
                     "`proofwake`TEXT NOT NULL DEFAULT '[]'," +
                     "`allow_early_dismiss`INTEGER NOT NULL DEFAULT 1" +
                     ");");
-            db.execSQL("INSERT INTO alarms (hours, minutes) VALUES (7, 0);");
+            db.execSQL("INSERT INTO alarms (hours, minutes, enabled) VALUES (7, 0, 0);");
             AlarmProvider.this.recalculateNextTime(db, null, null);
         }
 
@@ -275,9 +275,11 @@ public class AlarmProvider extends ContentProvider {
                     }
                     count = db.delete("alarms", "id = ? AND ( " + sel + ")", args);
                 }
+                break;
             default:
                 throw new IllegalArgumentException("Unknown / unsupported uri " + uri);
         }
+        this.recalculateNextTime(db, "0 = 1", null);
 
         getContext().getContentResolver().notifyChange(uri, null);
         return count;
