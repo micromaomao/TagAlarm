@@ -9,9 +9,6 @@ import android.util.Log;
 import java.util.Calendar;
 
 /*
-    * TODO: Handle multiple alarms (recalculate next alarm and send it to AlarmManager when alarm update / app restart / reboot)
-    * TODO: Disable non-repeating alarm after it goes off.
-    * TODO: Recalculate that alarms after it go off.
     * TODO: Custom volume / ringtone
     * TODO: Vibrate when can't play ringtone
     * TODO: Proof-of-wake

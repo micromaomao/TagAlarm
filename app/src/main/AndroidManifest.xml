@@ -5,6 +5,9 @@
     <permission android:name="org.maowtm.android.tagalarm.premission.ALERT" />
     <permission android:name="org.maowtm.android.tagalarm.premission.WRITE" />
 
+    <!-- Recalculate stuff on boot. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/icon"
@@ -28,6 +31,11 @@
             android:permission="org.maowtm.android.tagalarm.premission.ALERT">
             <intent-filter>
                 <action android:name="org.maowtm.android.tagalarm.actions.ALARM_ALERT" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
         <service android:name=".AlertService" android:exported="false"/>
