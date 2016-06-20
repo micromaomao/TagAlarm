@@ -6,6 +6,7 @@ import android.app.TimePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -14,7 +15,9 @@ import android.app.LoaderManager;
 import android.content.Loader;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
@@ -263,6 +266,14 @@ public class AlarmActivity extends AppCompatActivity implements LoaderManager.Lo
                 tfr.show(AlarmActivity.this.getFragmentManager(), "timePicker");
             }
         });
+
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            ViewGroup.LayoutParams lp = this.alarmlist.getLayoutParams();
+            DisplayMetrics metrics = this.getResources().getDisplayMetrics();
+            int max_width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 500, metrics);
+            lp.width = (metrics.widthPixels > max_width ? max_width : ViewGroup.LayoutParams.MATCH_PARENT);
+            this.alarmlist.setLayoutParams(lp);
+        }
     }
 
     protected void reQuery_AsyncCall(final boolean insert) {
