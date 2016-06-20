@@ -5,4 +5,14 @@
     <string name="alert_dismiss">Dismiss</string>
     <string name="alarmitem_repeat">Repeat:</string>
     <string name="alarmitem_repeat_no">(Only once)</string>
+
+    <string-array name="dow_checkbox">
+        <item>S</item>
+        <item>M</item>
+        <item>T</item>
+        <item>W</item>
+        <item>T</item>
+        <item>F</item>
+        <item>S</item>
+    </string-array>
 </resources>

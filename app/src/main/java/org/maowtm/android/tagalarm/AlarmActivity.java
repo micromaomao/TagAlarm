@@ -1,6 +1,5 @@
 package org.maowtm.android.tagalarm;
 
-import android.animation.TimeInterpolator;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
@@ -14,13 +13,11 @@ import android.os.Bundle;
 import android.app.LoaderManager;
 import android.content.Loader;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -108,7 +105,7 @@ public class AlarmActivity extends AppCompatActivity implements LoaderManager.Lo
                 used = true;
                 ContentValues cv = new ContentValues();
                 Alarms.DaysOfWeek dowInitial = new Alarms.DaysOfWeek(this.initState);
-                dowInitial.set((int) buttonView.getTag(R.id.tag_dowTargetDay), isChecked);
+                dowInitial.set(((DaysOfWeekCheckBox) buttonView).getDowTarget(), isChecked);
                 cv.put("daysofweek", dowInitial.getCode());
                 cv.put("enabled", 1);
                 UpdateAsyncTask uat = new UpdateAsyncTask(this.activity, this.alarmId, cv);
@@ -152,7 +149,7 @@ public class AlarmActivity extends AppCompatActivity implements LoaderManager.Lo
             Alarms.DaysOfWeek dow = new Alarms.DaysOfWeek((byte) cursor.getInt(3));
             DaysOfWeekCheckChanged dowC = new DaysOfWeekCheckChanged(activity, alarmId, dow);
             for(int i = 0; i < 7; i ++) {
-                CheckBox cb = (CheckBox) view.findViewWithTag("cb-" + i);
+                DaysOfWeekCheckBox cb = (DaysOfWeekCheckBox) view.findViewWithTag("cb-" + i);
                 cb.setOnCheckedChangeListener(null);
                 cb.setChecked(dow.get(i));
                 cb.setOnCheckedChangeListener(dowC);
@@ -173,9 +170,9 @@ public class AlarmActivity extends AppCompatActivity implements LoaderManager.Lo
             TableRow dowTableRow = ((TableRow) view.findViewById(R.id.alarmitem_dowtable_row));
             for (int i = 0; i < 7; i ++) {
                 LinearLayout cb_container = new LinearLayout(new ContextThemeWrapper(activity, R.style.AlarmItem_DaysOfWeekGird_Container));
-                CheckBox cb = new CheckBox(new ContextThemeWrapper(activity, R.style.AlarmItem_DaysOfWeekGird_Item));
+                DaysOfWeekCheckBox cb = new DaysOfWeekCheckBox(new ContextThemeWrapper(activity, R.style.AlarmItem_DaysOfWeekGird_Item));
                 cb.setTag("cb-" + i);
-                cb.setTag(R.id.tag_dowTargetDay, (Object) i);
+                cb.setDowTarget(i);
                 cb_container.addView(cb);
                 dowTableRow.addView(cb_container);
             }

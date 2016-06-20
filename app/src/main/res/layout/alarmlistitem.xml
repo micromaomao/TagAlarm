@@ -21,13 +21,17 @@
                 <Switch
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:id="@+id/alarmitem_switch" />
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:id="@+id/alarmitem_delete"
                     android:padding="5dp"
-                    android:text="D" />
+                    android:src="@drawable/rubbishbin"
+                    android:scaleType="fitXY"
+                    android:layout_gravity="center"
+                    style="@style/clickable" />
             </LinearLayout>
         </FrameLayout>
         <LinearLayout
