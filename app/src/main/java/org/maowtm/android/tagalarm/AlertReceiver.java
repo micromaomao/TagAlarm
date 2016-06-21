@@ -16,9 +16,11 @@ public class AlertReceiver extends BroadcastReceiver {
     public void onReceive(final Context context, Intent intent) {
         final long alarmId = intent.getLongExtra(Alarms.INTENT_EXTRA_ALARM_ID, -1);
         if (intent.getAction().equals(Alarms.ACTION_ALARM_ALERT) && alarmId >= 0) {
+            final boolean allowDirectDismiss = intent.getBooleanExtra(Alarms.INTENT_EXTRA_ALLOW_DIRECT_DISMISS, false);
             Log.v("AlertReceiver", "received alarm id = " + alarmId);
             Intent notify = new Intent(Alarms.ACTION_ALARM_ALERT);
             notify.putExtra(Alarms.INTENT_EXTRA_ALARM_ID, alarmId);
+            notify.putExtra(Alarms.INTENT_EXTRA_ALLOW_DIRECT_DISMISS, allowDirectDismiss);
             PendingIntent pendingNotify = PendingIntent.getBroadcast(context, 0, notify, PendingIntent.FLAG_CANCEL_CURRENT);
             Notification.Builder nBuilder = new Notification.Builder(context);
             nBuilder.setSmallIcon(R.drawable.icon);
@@ -31,10 +33,11 @@ public class AlertReceiver extends BroadcastReceiver {
             NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             nm.notify((int)(alarmId % Integer.MAX_VALUE), notification);
 
-            Alarms.showAlertUI(context, alarmId);
+            Alarms.showAlertUI(context, alarmId, allowDirectDismiss);
 
             Intent playAlarm = new Intent(context, AlertService.class);
             playAlarm.putExtra(Alarms.INTENT_EXTRA_ALARM_ID, alarmId);
+            playAlarm.putExtra(Alarms.INTENT_EXTRA_ALLOW_DIRECT_DISMISS, allowDirectDismiss);
             playAlarm.setAction(AlertService.ACTION_PLAY_ALARM);
             context.startService(playAlarm);
 

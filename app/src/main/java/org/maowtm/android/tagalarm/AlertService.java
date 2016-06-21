@@ -21,6 +21,7 @@ public class AlertService extends Service {
     protected Set<Long> alarms;
     protected MediaPlayer player;
     protected AudioManager am;
+    protected boolean allowDirectDismiss;
     public final class ForceActivityFrontRunnable implements Runnable {
         @Override
         public void run() {
@@ -33,6 +34,7 @@ public class AlertService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        this.allowDirectDismiss = true;
         this.alarms = new HashSet<>();
         this.am = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
         this.runnable = new ForceActivityFrontRunnable();
@@ -66,6 +68,7 @@ public class AlertService extends Service {
                 if (this.player == null) {
                     this.play();
                 }
+                this.allowDirectDismiss &= intent.getBooleanExtra(Alarms.INTENT_EXTRA_ALLOW_DIRECT_DISMISS, false);
                 break;
             case ACTION_STOP_ALARM:
                 if (this.alarms.contains(alarmId)) {
@@ -126,7 +129,7 @@ public class AlertService extends Service {
             this.stop();
             return;
         }
-        Alarms.showAlertUI(this, this.alarms.iterator().next());
+        Alarms.showAlertUI(this, this.alarms.iterator().next(), this.allowDirectDismiss);
         int stream = AudioManager.STREAM_ALARM;
         // TODO: Read custom volume settings
         this.am.setStreamVolume(stream, this.am.getStreamMaxVolume(stream), 0);

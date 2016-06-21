@@ -6,6 +6,7 @@ import android.app.TimePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
@@ -116,7 +117,7 @@ public class AlarmActivity extends AppCompatActivity implements LoaderManager.Lo
         }
 
         @Override
-        public void bindView(View view, Context context, Cursor cursor) {
+        public void bindView(View view, final Context context, Cursor cursor) {
             ((TextView) view.findViewById(R.id.alarmitem_time))
                 .setText(String.format(Locale.getDefault(), "%02d:%02d", cursor.getInt(1), cursor.getInt(2)));
             final long alarmId = cursor.getLong(0);
@@ -163,6 +164,15 @@ public class AlarmActivity extends AppCompatActivity implements LoaderManager.Lo
                 public void onClick(View v) {
                     UpdateAsyncTask att = new UpdateAsyncTask(AlarmCursorAdapter.this.activity, alarmId);
                     att.execute((Void) null);
+                }
+            });
+            view.findViewById(R.id.alarmitem_test).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent bd = new Intent(Alarms.ACTION_ALARM_ALERT);
+                    bd.putExtra(Alarms.INTENT_EXTRA_ALARM_ID, alarmId);
+                    bd.putExtra(Alarms.INTENT_EXTRA_ALLOW_DIRECT_DISMISS, true);
+                    context.sendBroadcast(bd);
                 }
             });
         }

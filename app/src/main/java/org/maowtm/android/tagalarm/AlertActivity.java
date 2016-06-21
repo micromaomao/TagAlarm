@@ -25,10 +25,12 @@ public class AlertActivity extends Activity {
     protected UpdateTimeRunnable updateTimeRunnable;
     protected Handler updateTimeHandler;
     protected long alarmId;
+    protected boolean allowDirectDismiss;
     @Override
     protected void onCreate(Bundle sis) {
         super.onCreate(sis);
         this.alarmId = this.getIntent().getLongExtra(Alarms.INTENT_EXTRA_ALARM_ID, -1);
+        this.allowDirectDismiss = this.getIntent().getBooleanExtra(Alarms.INTENT_EXTRA_ALLOW_DIRECT_DISMISS, false);
         this.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
         this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
                                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
@@ -47,6 +49,19 @@ public class AlertActivity extends Activity {
                 AlertActivity.this.startDismiss();
             }
         });
+
+        if (this.allowDirectDismiss) {
+            this.findViewById(R.id.direct_dismiss).setVisibility(View.VISIBLE);
+            this.findViewById(R.id.direct_dismiss_btn).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertReceiver.acceptDismiss(AlertActivity.this, AlertActivity.this.alarmId);
+                    AlertActivity.this.finish();
+                }
+            });
+        } else {
+            this.findViewById(R.id.direct_dismiss).setVisibility(View.GONE);
+        }
     }
 
     @Override

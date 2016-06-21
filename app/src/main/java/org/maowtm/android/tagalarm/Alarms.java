@@ -12,13 +12,14 @@ import java.util.Calendar;
     * TODO: Custom volume / ringtone
     * TODO: Vibrate when can't play ringtone
     * TODO: Proof-of-wake
-    * TODO: Show notification before alarm ring and allow "Dismiss now".
+    * TODO: Show notification before alarm ring and allow "Dismiss now" / Good night.
     * TODO: Allow play music
 */
 
 public abstract class Alarms {
     public static final String ACTION_ALARM_ALERT = "org.maowtm.android.tagalarm.actions.ALARM_ALERT";
     public static final String INTENT_EXTRA_ALARM_ID = "org.maowtm.android.tagalarm.intentextras.ALARM_ID";
+    public static final String INTENT_EXTRA_ALLOW_DIRECT_DISMISS = "org.maowtm.android.tagalarm.intentextras.ALLOW_DIRECT_DISMISS";
     public static final class DaysOfWeek {
         // 2^7-1 (binary 1111111)
         public static final int MAX_MDAYS = 127;
@@ -139,8 +140,12 @@ public abstract class Alarms {
         }
     }
     public static void showAlertUI(Context context, long alarmId) {
+        showAlertUI(context, alarmId, false);
+    }
+    public static void showAlertUI(Context context, long alarmId, boolean allowDirectDismiss) {
         Intent alertUI = new Intent(context, AlertActivity.class);
         alertUI.putExtra(Alarms.INTENT_EXTRA_ALARM_ID, alarmId);
+        alertUI.putExtra(Alarms.INTENT_EXTRA_ALLOW_DIRECT_DISMISS, allowDirectDismiss);
         alertUI.setFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION | Intent.FLAG_ACTIVITY_NEW_TASK |
                 Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(alertUI);

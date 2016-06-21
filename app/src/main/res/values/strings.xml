@@ -5,6 +5,11 @@
     <string name="alert_dismiss">Dismiss</string>
     <string name="alarmitem_repeat">Repeat:</string>
     <string name="alarmitem_repeat_no">(Only once)</string>
+    <string name="alarmitem_pow_add">Add Proof-of-Wake requirement&#8230;</string>
+    <string name="AlarmItem_test_text">Test alarm&#8230;</string>
+    <string name="alert_direct_dismiss">Dismiss right away</string>
+    <string name="alert_direct_dismiss_description">( Because you started this alarm as a test. Used
+        when you discovered that you have no way to dismiss it with proof-of-wake. Won\'t show when it really goes off. )</string>
 
     <string-array name="dow_checkbox">
         <item>S</item>

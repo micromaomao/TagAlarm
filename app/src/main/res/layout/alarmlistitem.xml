@@ -71,6 +71,32 @@
                     android:layout_width="match_parent"
                     android:id="@+id/alarmitem_dowtable_row"/>
             </TableLayout>
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/alarmitem_pow_list" />
+            <LinearLayout
+                android:id="@+id/alarmitem_addpow"
+                style="@style/AlarmItem_Pow_Add">
+                <ImageView
+                    style="@style/AlarmItem_Pow_Add_Image"
+                    android:contentDescription="@string/alarmitem_pow_add"
+                    android:src="@drawable/icon" />
+                <TextView
+                    android:text="@string/alarmitem_pow_add"
+                    style="@style/AlarmItem_Pow_Add_Text"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/alarmitem_test"
+                style="@style/AlarmItem_Pow_Add">
+                <ImageView
+                    style="@style/AlarmItem_Pow_Add_Image"
+                    android:contentDescription="@string/alarmitem_pow_add"
+                    android:src="@drawable/icon" />
+                <TextView
+                    android:text="@string/AlarmItem_test_text"
+                    style="@style/AlarmItem_Pow_Add_Text"/>
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
