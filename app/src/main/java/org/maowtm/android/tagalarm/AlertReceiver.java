@@ -34,6 +34,12 @@ public class AlertReceiver extends BroadcastReceiver {
             nm.notify((int)(alarmId % Integer.MAX_VALUE), notification);
 
             Alarms.showAlertUI(context, alarmId, allowDirectDismiss);
+            /* TODO:
+            if (alCursor.getInt(2) <= 0 || alCursor.getLong(1) < System.currentTimeMillis() - (1000*60*30)) {
+                alCursor.close();
+                return null;
+            }
+            */
 
             Intent playAlarm = new Intent(context, AlertService.class);
             playAlarm.putExtra(Alarms.INTENT_EXTRA_ALARM_ID, alarmId);
@@ -47,14 +53,15 @@ public class AlertReceiver extends BroadcastReceiver {
                     Uri uri = Uri.parse("content://" + AlarmProvider.AUTH + "/alarm/" + alarmId);
                     Cursor alrCsr = context.getContentResolver().query(uri,
                             new String[] {"daysofweek", "enabled"}, null, null, null);
-                    if (!alrCsr.moveToFirst())
-                        return null;
-                    Alarms.DaysOfWeek dow = new Alarms.DaysOfWeek((byte) alrCsr.getInt(0));
-                    if (!dow.isRepeat() && alrCsr.getInt(1) > 0) {
-                        ContentValues cv = new ContentValues();
-                        cv.put("enabled", 0);
-                        context.getContentResolver().update(uri, cv, null, null);
+                    if (alrCsr.moveToFirst()) {
+                        Alarms.DaysOfWeek dow = new Alarms.DaysOfWeek((byte) alrCsr.getInt(0));
+                        if (!dow.isRepeat() && alrCsr.getInt(1) > 0) {
+                            ContentValues cv = new ContentValues();
+                            cv.put("enabled", 0);
+                            context.getContentResolver().update(uri, cv, null, null);
+                        }
                     }
+                    alrCsr.close();
                     return null;
                 }
             };

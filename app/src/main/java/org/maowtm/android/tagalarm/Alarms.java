@@ -4,6 +4,9 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.util.Calendar;
@@ -20,6 +23,7 @@ public abstract class Alarms {
     public static final String ACTION_ALARM_ALERT = "org.maowtm.android.tagalarm.actions.ALARM_ALERT";
     public static final String INTENT_EXTRA_ALARM_ID = "org.maowtm.android.tagalarm.intentextras.ALARM_ID";
     public static final String INTENT_EXTRA_ALLOW_DIRECT_DISMISS = "org.maowtm.android.tagalarm.intentextras.ALLOW_DIRECT_DISMISS";
+    public static final String INTENT_EXTRA_PROOF_OF_WAKES = "org.maowtm.android.tagalarm.intentextras.PROOF_OF_WAKES";
     public static final class DaysOfWeek {
         // 2^7-1 (binary 1111111)
         public static final int MAX_MDAYS = 127;
@@ -142,12 +146,29 @@ public abstract class Alarms {
     public static void showAlertUI(Context context, long alarmId) {
         showAlertUI(context, alarmId, false);
     }
-    public static void showAlertUI(Context context, long alarmId, boolean allowDirectDismiss) {
-        Intent alertUI = new Intent(context, AlertActivity.class);
-        alertUI.putExtra(Alarms.INTENT_EXTRA_ALARM_ID, alarmId);
-        alertUI.putExtra(Alarms.INTENT_EXTRA_ALLOW_DIRECT_DISMISS, allowDirectDismiss);
-        alertUI.setFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION | Intent.FLAG_ACTIVITY_NEW_TASK |
-                Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        context.startActivity(alertUI);
+    public static void showAlertUI(final Context context, final long alarmId, final boolean allowDirectDismiss) {
+        AsyncTask<Void, Void, Void> async = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                Cursor alCursor = context.getContentResolver().query(Uri.parse("content://" + AlarmProvider.AUTH + "/alarm/" + alarmId),
+                        new String[] {"proofwake", "nexttime", "enabled"}, null, null, null);
+                Intent alertUI = new Intent(context, AlertActivity.class);
+                alertUI.putExtra(Alarms.INTENT_EXTRA_ALARM_ID, alarmId);
+                alertUI.putExtra(Alarms.INTENT_EXTRA_ALLOW_DIRECT_DISMISS, allowDirectDismiss);
+                if (alCursor != null) {
+                    if (alCursor.moveToFirst()) {
+                        alertUI.putExtra(Alarms.INTENT_EXTRA_PROOF_OF_WAKES, alCursor.getString(0));
+                    }
+                    alCursor.close();
+                } else {
+                    alertUI.putExtra(Alarms.INTENT_EXTRA_PROOF_OF_WAKES, "[]");
+                }
+                alertUI.setFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION | Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                context.startActivity(alertUI);
+                return null;
+            }
+        };
+        async.execute((Void) null);
     }
 }

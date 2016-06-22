@@ -70,10 +70,14 @@
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent"
                     android:id="@+id/alarmitem_dowtable_row"/>
+                <!-- Stuff will be added programmatically here. -->
             </TableLayout>
-            <ListView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+            <TextView
+                style="@style/AlarmItem_Pow_Desc"
+                android:id="@+id/alarmitem_pow_list_desc"
+                android:text="@string/AlarmItem_pow_desc" />
+            <LinearLayout
+                style="@style/AlarmItem_Pow_List"
                 android:id="@+id/alarmitem_pow_list" />
             <LinearLayout
                 android:id="@+id/alarmitem_addpow"
@@ -84,7 +88,8 @@
                     android:src="@drawable/icon" />
                 <TextView
                     android:text="@string/alarmitem_pow_add"
-                    style="@style/AlarmItem_Pow_Add_Text"/>
+                    style="@style/AlarmItem_Pow_Add_Text"
+                    android:id="@+id/alarmitem_pow_add_text" />
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/alarmitem_test"

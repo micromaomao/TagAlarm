@@ -1,11 +1,13 @@
 package org.maowtm.android.tagalarm;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -20,11 +22,13 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.widget.CompoundButton;
 import android.widget.CursorAdapter;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ResourceCursorAdapter;
@@ -34,6 +38,10 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import android.text.format.DateFormat;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Calendar;
 import java.util.Locale;
@@ -85,9 +93,13 @@ public class AlarmActivity extends AppCompatActivity implements LoaderManager.Lo
     }
     protected static class AlarmCursorAdapter extends ResourceCursorAdapter {
         protected final AlarmActivity activity;
+        protected LayoutInflater inflater;
+        protected String[] powTypeNames;
         public AlarmCursorAdapter(AlarmActivity am) {
             super(am, R.layout.alarmlistitem, null, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
             this.activity = am;
+            this.inflater = (LayoutInflater) this.activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            this.powTypeNames = this.activity.getResources().getStringArray(R.array.pow_types);
         }
         protected static class DaysOfWeekCheckChanged implements CompoundButton.OnCheckedChangeListener {
             protected final AlarmActivity activity;
@@ -175,6 +187,98 @@ public class AlarmActivity extends AppCompatActivity implements LoaderManager.Lo
                     context.sendBroadcast(bd);
                 }
             });
+
+            LinearLayout powList = (LinearLayout) view.findViewById(R.id.alarmitem_pow_list);
+            ProofOfWakes pow;
+            ProofOfWakes.ProofRequirement[] powR;
+            powList.removeAllViews();
+            boolean added = false;
+            try {
+                pow = new ProofOfWakes(new JSONArray(cursor.getString(5)));
+                powR = pow.getAll();
+                for (ProofOfWakes.ProofRequirement pr : powR) {
+                    powList.addView(this.getViewForPr(pr, powList));
+                    added = true;
+                }
+            } catch (JSONException e) {
+                // TODO
+            }
+            if (!added) {
+                view.findViewById(R.id.alarmitem_pow_list_desc)
+                        .setVisibility(View.GONE);
+            } else {
+                ((TextView) view.findViewById(R.id.alarmitem_pow_add_text))
+                        .setText(R.string.alarmitem_pow_add_more);
+            }
+        }
+
+        public static class ShakeDialogFragment extends DialogFragment {
+            protected LayoutInflater inflater;
+            protected ProofOfWakes.ProofRequirement pr;
+            public ShakeDialogFragment() {
+                super();
+            }
+            @Override
+            public Dialog onCreateDialog(Bundle sis) {
+                this.inflater = (LayoutInflater) this.getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                String prJSON = this.getArguments().getString("pr");
+                if (prJSON == null)
+                    throw new IllegalStateException("no pr argument.");
+                try {
+                    this.pr = ProofOfWakes.ProofRequirement.fromJSONObject(new JSONObject(prJSON));
+                } catch (JSONException e) {
+                    throw new IllegalStateException("pr argument not valid.", e);
+                }
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(R.string.powconfig_shake_title);
+                builder.setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                    }
+                });
+                View vg = inflater.inflate(R.layout.powconfigshake, null);
+                ((EditText) vg.findViewById(R.id.powconfig_shake_amount))
+                        .setText(String.format(Locale.getDefault(), "%d", pr.amount));
+                builder.setView(vg);
+                return builder.create();
+            }
+        }
+
+        protected View getViewForPr(final ProofOfWakes.ProofRequirement pr, ViewGroup parent) {
+            View v = this.inflater.inflate(R.layout.alarmlistpowlistitem, parent, false);
+            TextView nameText = (TextView) v.findViewById(R.id.alarmitem_pow_item_name);
+            nameText.setText(pr.toString(this.activity.getResources()));
+            nameText.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    switch (pr.type) {
+                        case ProofOfWakes.ProofRequirement.TYPE_SHAKE:
+                            ShakeDialogFragment sdf = new ShakeDialogFragment();
+                            Bundle args = new Bundle();
+                            try {
+                                args.putString("pr", pr.toJSON().toString());
+                            } catch (JSONException e) {
+                                AlarmCursorAdapter.this.activity.reQuery_AsyncCall(false);
+                                break;
+                            }
+                            sdf.setArguments(args);
+                            sdf.show(AlarmCursorAdapter.this.activity.getFragmentManager(), "pow_config_shake");
+                            break;
+                        case ProofOfWakes.ProofRequirement.TYPE_WAIT:
+                            DialogFragment df = new DialogFragment() {
+                                @Override
+                                public Dialog onCreateDialog(Bundle sis) {
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                    builder.setTitle(R.string.powconfig_wait_title);
+                                    return builder.create();
+                                }
+                            };
+                            df.show(AlarmCursorAdapter.this.activity.getFragmentManager(), "pow_config_shake");
+                            break;
+                    }
+                }
+            });
+            return v;
         }
         @Override
         public View newView(final Context context, Cursor cursor, final ViewGroup parent) {
@@ -245,6 +349,7 @@ public class AlarmActivity extends AppCompatActivity implements LoaderManager.Lo
     protected static final int LOADER_ID_SHOW_ALARMS = 0;
     protected Handler reQueryHandler;
     protected View fab;
+    protected int test = 0;
     protected boolean scrollToBottomNeeded = false; // I know.
     @Override
     protected void onCreate(Bundle sis) {
@@ -286,6 +391,12 @@ public class AlarmActivity extends AppCompatActivity implements LoaderManager.Lo
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("reach", "onDestroy()");
+    }
+
     protected void reQuery_AsyncCall(final boolean insert) {
         reQueryHandler.post(new Runnable() {
             @Override
@@ -303,7 +414,7 @@ public class AlarmActivity extends AppCompatActivity implements LoaderManager.Lo
         Log.d("reach", "onCreateLoader");
         if (id == LOADER_ID_SHOW_ALARMS) {
             Uri query = Uri.parse("content://" + AlarmProvider.AUTH + "/alarm");
-            return new CursorLoader(this, query, new String[] {"id AS _id", "hours", "minutes", "daysofweek", "enabled"}
+            return new CursorLoader(this, query, new String[] {"id AS _id", "hours", "minutes", "daysofweek", "enabled", "proofwake"}
                     , null, null, "_id ASC");
         }
         throw new IllegalArgumentException("id not recognized.");

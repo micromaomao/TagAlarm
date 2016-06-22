@@ -48,7 +48,8 @@ public class AlarmProvider extends ContentProvider {
                     "`proofwake`TEXT NOT NULL DEFAULT '[]'," +
                     "`allow_early_dismiss`INTEGER NOT NULL DEFAULT 1" +
                     ");");
-            db.execSQL("INSERT INTO alarms (hours, minutes, enabled) VALUES (7, 0, 0);");
+            db.execSQL("INSERT INTO alarms (hours, minutes, enabled, proofwake) VALUES (7, 0, 0, " +
+                    "'[{\"type\": 1, \"difficulty\": 2, \"amount\": 10}, {\"type\": 5, \"second\": 1200}]');");
             AlarmProvider.this.recalculateNextTime(db, null, null);
         }
 
@@ -173,6 +174,7 @@ public class AlarmProvider extends ContentProvider {
         } else {
             Alarms.setAlert(this.getContext(), cs.getLong(1), cs.getLong(0));
         }
+        cs.close();
         return count;
     }
     @Override

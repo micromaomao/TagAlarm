@@ -7,6 +7,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.util.Date;
 
 public class AlertActivity extends Activity {
@@ -24,13 +27,35 @@ public class AlertActivity extends Activity {
     }
     protected UpdateTimeRunnable updateTimeRunnable;
     protected Handler updateTimeHandler;
+
     protected long alarmId;
     protected boolean allowDirectDismiss;
+    protected long triggerTime;
+    protected String proofOfWake;
+    protected ProofOfWakes pows;
+    protected String failure;
     @Override
     protected void onCreate(Bundle sis) {
         super.onCreate(sis);
         this.alarmId = this.getIntent().getLongExtra(Alarms.INTENT_EXTRA_ALARM_ID, -1);
         this.allowDirectDismiss = this.getIntent().getBooleanExtra(Alarms.INTENT_EXTRA_ALLOW_DIRECT_DISMISS, false);
+        this.proofOfWake = this.getIntent().getStringExtra(Alarms.INTENT_EXTRA_PROOF_OF_WAKES);
+        if (this.proofOfWake == null) {
+            this.proofOfWake = "[]";
+        }
+        if (sis != null) {
+            this.triggerTime = sis.getLong("triggerTime", System.currentTimeMillis());
+            this.allowDirectDismiss = sis.getBoolean("allowDirectDismiss", this.allowDirectDismiss);
+            this.alarmId = sis.getLong("alarmId", this.alarmId);
+            this.proofOfWake = sis.getString("proofOfWake", this.proofOfWake);
+        }
+
+        try {
+            pows = new ProofOfWakes(new JSONArray(this.proofOfWake));
+        } catch (JSONException e) {
+            this.failure = getString(R.string.alert_failure_msg) + "\n" + e.getMessage();
+            // TODO: Show this in UI.
+        }
         this.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
         this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
                                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
@@ -67,6 +92,10 @@ public class AlertActivity extends Activity {
     @Override
     protected void onSaveInstanceState(Bundle sis) {
         super.onSaveInstanceState(sis);
+        sis.putLong("triggerTime", triggerTime);
+        sis.putBoolean("allowDirectDismiss", allowDirectDismiss);
+        sis.putLong("alarmId", this.alarmId);
+        sis.putString("proofOfWake", this.proofOfWake);
     }
     @Override
     protected void onPause() {

@@ -5,11 +5,13 @@
     <string name="alert_dismiss">Dismiss</string>
     <string name="alarmitem_repeat">Repeat:</string>
     <string name="alarmitem_repeat_no">(Only once)</string>
-    <string name="alarmitem_pow_add">Add Proof-of-Wake requirement&#8230;</string>
+    <string name="alarmitem_pow_add">Add requirement for dismiss&#8230;</string>
+    <string name="alarmitem_pow_add_more">Add another&#8230;</string>
     <string name="AlarmItem_test_text">Test alarm&#8230;</string>
     <string name="alert_direct_dismiss">Dismiss right away</string>
     <string name="alert_direct_dismiss_description">( Because you started this alarm as a test. Used
         when you discovered that you have no way to dismiss it with proof-of-wake. Won\'t show when it really goes off. )</string>
+    <string name="alert_failure_msg">Failed to load proofs. Using fallback.</string>
 
     <string-array name="dow_checkbox">
         <item>S</item>
@@ -20,4 +22,30 @@
         <item>F</item>
         <item>S</item>
     </string-array>
+
+    <string name="AlarmItem_pow_desc">In order to close the alarm, you need to do any of:</string>
+
+    <string-array name="pow_types">
+        <!-- Index starts from zero -->
+        <item />
+        <!-- TYPE_SHAKE -->
+        <item>Shake phone %1$d times, difficulty %2$d/5.</item>
+        <!-- TYPE_QRCODE -->
+        <item>Scan a QR code</item>
+        <!-- TYPE_MATH -->
+        <item>Work out arithmetic problems</item>
+        <!-- TYPE_LOCATION -->
+        <item>Allow dismiss if you are not at home</item>
+        <!-- TYPE_WAIT -->
+        <item>Wait %1$s minutes.</item>
+    </string-array>
+
+    <string name="powconfig_shake_title">Shake phone</string>
+    <string name="powconfig_wait_title">Wait</string>
+
+    <string name="set">Set</string>
+
+    <string name="powconfig_shake_amount">Numbers of shake needed:</string>
+    <string name="powconfig_set_difficulty">Set difficulty</string>
+    <string name="powconfig_current_shake_difficulty">Current difficulty: %1$d/5</string>
 </resources>
