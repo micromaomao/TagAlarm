@@ -189,15 +189,27 @@ public class AlarmActivity extends AppCompatActivity implements LoaderManager.Lo
             });
 
             LinearLayout powList = (LinearLayout) view.findViewById(R.id.alarmitem_pow_list);
-            ProofOfWakes pow;
-            ProofOfWakes.ProofRequirement[] powR;
             powList.removeAllViews();
             boolean added = false;
             try {
-                pow = new ProofOfWakes(new JSONArray(cursor.getString(5)));
-                powR = pow.getAll();
-                for (ProofOfWakes.ProofRequirement pr : powR) {
-                    powList.addView(this.getViewForPr(pr, powList));
+                final ProofOfWakes pow = new ProofOfWakes(new JSONArray(cursor.getString(5)));
+                for (int i = 0; i < pow.length(); i ++) {
+                    final int fi = i;
+                    powList.addView(this.getViewForPr(pow.get(i), powList, new ProofOfWakesConfigureDialogs.PowUpdateCallback() {
+                        @Override
+                        public void onSet(ProofOfWakes.ProofRequirement newPr) {
+                            pow.set(fi, newPr);
+                            try {
+                                String nw = pow.toJSON().toString();
+                                ContentValues cv = new ContentValues();
+                                cv.put("proofwake", nw);
+                                UpdateAsyncTask att = new UpdateAsyncTask(AlarmCursorAdapter.this.activity, alarmId, cv);
+                                att.execute((Void) null);
+                            } catch (JSONException e) {
+                                // TODO
+                            }
+                        }
+                    }));
                     added = true;
                 }
             } catch (JSONException e) {
@@ -212,70 +224,47 @@ public class AlarmActivity extends AppCompatActivity implements LoaderManager.Lo
             }
         }
 
-        public static class ShakeDialogFragment extends DialogFragment {
-            protected LayoutInflater inflater;
-            protected ProofOfWakes.ProofRequirement pr;
-            public ShakeDialogFragment() {
-                super();
-            }
-            @Override
-            public Dialog onCreateDialog(Bundle sis) {
-                this.inflater = (LayoutInflater) this.getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                String prJSON = this.getArguments().getString("pr");
-                if (prJSON == null)
-                    throw new IllegalStateException("no pr argument.");
-                try {
-                    this.pr = ProofOfWakes.ProofRequirement.fromJSONObject(new JSONObject(prJSON));
-                } catch (JSONException e) {
-                    throw new IllegalStateException("pr argument not valid.", e);
-                }
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(R.string.powconfig_shake_title);
-                builder.setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
-                });
-                View vg = inflater.inflate(R.layout.powconfigshake, null);
-                ((EditText) vg.findViewById(R.id.powconfig_shake_amount))
-                        .setText(String.format(Locale.getDefault(), "%d", pr.amount));
-                builder.setView(vg);
-                return builder.create();
+        protected Bundle getArgument(ProofOfWakes.ProofRequirement pr) {
+            Bundle args = new Bundle();
+            try {
+                args.putString("pr", pr.toJSON().toString());
+                return args;
+            } catch (JSONException e) {
+                AlarmCursorAdapter.this.activity.reQuery_AsyncCall(false);
+                // TODO
+                return null;
             }
         }
 
-        protected View getViewForPr(final ProofOfWakes.ProofRequirement pr, ViewGroup parent) {
+        protected View getViewForPr(final ProofOfWakes.ProofRequirement pr, ViewGroup parent,
+                                    final ProofOfWakesConfigureDialogs.PowUpdateCallback callback) {
             View v = this.inflater.inflate(R.layout.alarmlistpowlistitem, parent, false);
             TextView nameText = (TextView) v.findViewById(R.id.alarmitem_pow_item_name);
             nameText.setText(pr.toString(this.activity.getResources()));
             nameText.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    final ProofOfWakesConfigureDialogs.PowConfigDialogFragment df;
                     switch (pr.type) {
                         case ProofOfWakes.ProofRequirement.TYPE_SHAKE:
-                            ShakeDialogFragment sdf = new ShakeDialogFragment();
-                            Bundle args = new Bundle();
-                            try {
-                                args.putString("pr", pr.toJSON().toString());
-                            } catch (JSONException e) {
-                                AlarmCursorAdapter.this.activity.reQuery_AsyncCall(false);
-                                break;
-                            }
-                            sdf.setArguments(args);
-                            sdf.show(AlarmCursorAdapter.this.activity.getFragmentManager(), "pow_config_shake");
+                            df = new ProofOfWakesConfigureDialogs.ShakeDialogFragment();
+                            df.setArguments(getArgument(pr));
+                            df.setUpdateCallback(callback);
+                            df.show(AlarmCursorAdapter.this.activity.getFragmentManager(), "powconfig");
                             break;
                         case ProofOfWakes.ProofRequirement.TYPE_WAIT:
-                            DialogFragment df = new DialogFragment() {
-                                @Override
-                                public Dialog onCreateDialog(Bundle sis) {
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                                    builder.setTitle(R.string.powconfig_wait_title);
-                                    return builder.create();
-                                }
-                            };
-                            df.show(AlarmCursorAdapter.this.activity.getFragmentManager(), "pow_config_shake");
+                            df = new ProofOfWakesConfigureDialogs.WaitDialogFragment();
+                            df.setArguments(getArgument(pr));
+                            df.setUpdateCallback(callback);
+                            df.show(AlarmCursorAdapter.this.activity.getFragmentManager(), "powconfig");
                             break;
                     }
+                }
+            });
+            v.findViewById(R.id.alarmitem_pow_item_delete).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    callback.onSet(null);
                 }
             });
             return v;

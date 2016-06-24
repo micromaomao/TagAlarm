@@ -1,6 +1,7 @@
 package org.maowtm.android.tagalarm;
 
 import android.content.res.Resources;
+import android.support.annotation.Nullable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class ProofOfWakes {
-    protected ProofRequirement[] prs;
+    private ProofRequirement[] prs;
     public ProofOfWakes(JSONArray json) throws JSONException {
         this.prs = new ProofRequirement[json.length()];
         for (int i = 0; i < this.prs.length; i ++) {
@@ -22,12 +23,19 @@ public class ProofOfWakes {
     public JSONArray toJSON() throws JSONException {
         JSONArray ja = new JSONArray();
         for (ProofRequirement pr : prs) {
-            ja.put(pr.toJSON());
+            if (pr != null)
+                ja.put(pr.toJSON());
         }
         return ja;
     }
-    public ProofRequirement[] getAll() {
-        return this.prs;
+    public ProofRequirement get(int i) {
+        return this.prs[i];
+    }
+    public int length() {
+        return this.prs.length;
+    }
+    public void set(int i, @Nullable ProofRequirement pr) {
+        this.prs[i] = pr;
     }
     public Set<Integer> types() {
         HashSet<Integer> set = new HashSet<>();
@@ -92,36 +100,64 @@ public class ProofOfWakes {
         public static final int DIFFICULTY_CHALLENGING = 4;
 
         protected final int type;
-        protected int amount;
-        protected int difficulty;
-        protected String qrMatch;
+
+        public int getAmount() {
+            return this.amount;
+        }
+
+        public void setAmount(int amount) {
+            if (amount <= 0) {
+                if (this.type == TYPE_WAIT) {
+                    throw new IllegalArgumentException("Seconds must > 0");
+                }
+                throw new IllegalArgumentException("Amount must be positive.");
+            }
+            this.amount = amount;
+        }
+
+        public int getDifficulty() {
+            return this.difficulty;
+        }
+
+        public void setDifficulty(int difficulty) {
+            if (difficulty < DIFFICULTY_LIGHT || difficulty > DIFFICULTY_CHALLENGING) {
+                throw new IllegalArgumentException("Difficulty not in range.");
+            }
+            this.difficulty = difficulty;
+        }
+
+        private int amount;
+        private int difficulty;
+
+        public String getQrMatch() {
+            return this.qrMatch;
+        }
+
+        public void setQrMatch(String qrMatch) {
+            if (qrMatch.length() <= 0)
+                throw new IllegalArgumentException("qrMatch must not be empty if your type is QRCODE.");
+            this.qrMatch = qrMatch;
+        }
+
+        private String qrMatch;
         protected ProofRequirement(JSONObject obj) throws JSONException {
             this.type = obj.getInt("type");
             switch (this.type) {
                 case TYPE_SHAKE:
                 case TYPE_MATH:
-                    this.amount = obj.getInt("amount");
-                    this.difficulty = obj.getInt("difficulty");
+                    this.setAmount(obj.getInt("amount"));
+                    this.setDifficulty(obj.getInt("difficulty"));
                     break;
                 case TYPE_QRCODE:
-                    this.qrMatch = obj.getString("qrMatch");
-                    if (this.qrMatch.length() <= 0)
-                        throw new IllegalArgumentException("qrMatch must not be empty if your type is QRCODE.");
+                    this.setQrMatch(obj.getString("qrMatch"));
                     break;
                 case TYPE_WAIT:
-                    this.amount = obj.getInt("second");
-                    if (this.amount <= 0)
-                        throw new IllegalArgumentException("Seconds must > 0");
+                    this.setAmount(obj.getInt("second"));
                     break;
                 case TYPE_LOCATION:
                     throw new UnsupportedOperationException("TODO"); // TODO
                 default:
                     throw new IllegalArgumentException("Type not recognized.");
-            }
-            if (this.amount <= 0)
-                throw new IllegalArgumentException("Amount must be positive.");
-            if (this.difficulty < DIFFICULTY_LIGHT || this.difficulty > DIFFICULTY_CHALLENGING) {
-                throw new IllegalArgumentException("Difficulty not in range.");
             }
         }
         public static ProofRequirement fromJSONObject(JSONObject object) throws JSONException {
@@ -141,6 +177,7 @@ public class ProofOfWakes {
                     break;
                 case TYPE_WAIT:
                     obj.put("second", this.amount);
+                    break;
                 case TYPE_LOCATION:
                     throw new UnsupportedOperationException("TODO"); // TODO
                 default:

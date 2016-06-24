@@ -48,4 +48,5 @@
     <string name="powconfig_shake_amount">Numbers of shake needed:</string>
     <string name="powconfig_set_difficulty">Set difficulty</string>
     <string name="powconfig_current_shake_difficulty">Current difficulty: %1$d/5</string>
+    <string name="powconfig_wait_minutes">Minutes required:</string>
 </resources>

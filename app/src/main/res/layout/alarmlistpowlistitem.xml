@@ -9,7 +9,7 @@
             style="@style/AlarmItem_Pow_Item_Name"
             android:id="@+id/alarmitem_pow_item_name" />
         <ImageButton
-            android:id="@+id/alarmitem_pow_item_deletc"
+            android:id="@+id/alarmitem_pow_item_delete"
             style="@style/AlarmItem_Pow_Delete"
             android:src="@drawable/rubbishbin" />
     </FrameLayout>
