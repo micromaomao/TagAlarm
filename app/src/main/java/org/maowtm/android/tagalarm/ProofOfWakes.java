@@ -20,6 +20,15 @@ public class ProofOfWakes {
             this.prs[i] = ProofRequirement.fromJSONObject(json.getJSONObject(i));
         }
     }
+    public ProofOfWakes(ProofOfWakes pr, @Nullable ProofRequirement append) {
+        if (append == null) {
+            this.prs = pr.prs;
+        } else {
+            this.prs = new ProofRequirement[pr.prs.length + 1];
+            System.arraycopy(pr.prs, 0, this.prs, 0, pr.prs.length);
+            this.prs[pr.prs.length] = append;
+        }
+    }
     public JSONArray toJSON() throws JSONException {
         JSONArray ja = new JSONArray();
         for (ProofRequirement pr : prs) {
@@ -149,10 +158,35 @@ public class ProofOfWakes {
                     this.setDifficulty(obj.getInt("difficulty"));
                     break;
                 case TYPE_QRCODE:
+                    this.setAmount(1);
                     this.setQrMatch(obj.getString("qrMatch"));
                     break;
                 case TYPE_WAIT:
                     this.setAmount(obj.getInt("second"));
+                    break;
+                case TYPE_LOCATION:
+                    throw new UnsupportedOperationException("TODO"); // TODO
+                default:
+                    throw new IllegalArgumentException("Type not recognized.");
+            }
+        }
+        public ProofRequirement(int type) {
+            this.type = type;
+            switch (this.type) {
+                case TYPE_SHAKE:
+                    this.setAmount(10);
+                    this.setDifficulty(DIFFICULTY_NORMAL);
+                    break;
+                case TYPE_MATH:
+                    this.setAmount(3);
+                    this.setDifficulty(DIFFICULTY_NORMAL);
+                    break;
+                case TYPE_QRCODE:
+                    this.setAmount(1);
+                    this.setQrMatch("-");
+                    break;
+                case TYPE_WAIT:
+                    this.setAmount(1200);
                     break;
                 case TYPE_LOCATION:
                     throw new UnsupportedOperationException("TODO"); // TODO

@@ -212,6 +212,29 @@ public class AlarmActivity extends AppCompatActivity implements LoaderManager.Lo
                     }));
                     added = true;
                 }
+                view.findViewById(R.id.alarmitem_addpow).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ProofOfWakesConfigureDialogs.AddPowDialogFragment addPowDialogFragment =
+                                new ProofOfWakesConfigureDialogs.AddPowDialogFragment();
+                        addPowDialogFragment.setOnAdd(new ProofOfWakesConfigureDialogs.PowUpdateCallback() {
+                            @Override
+                            public void onSet(ProofOfWakes.ProofRequirement newPr) {
+                                ProofOfWakes newPow = new ProofOfWakes(pow, newPr);
+                                try {
+                                    String nw = newPow.toJSON().toString();
+                                    ContentValues cv = new ContentValues();
+                                    cv.put("proofwake", nw);
+                                    UpdateAsyncTask att = new UpdateAsyncTask(AlarmCursorAdapter.this.activity, alarmId, cv);
+                                    att.execute((Void) null);
+                                } catch (JSONException e) {
+                                    // TODO
+                                }
+                            }
+                        });
+                        addPowDialogFragment.show(AlarmCursorAdapter.this.activity.getFragmentManager(), "powconfig");
+                    }
+                });
             } catch (JSONException e) {
                 // TODO
             }

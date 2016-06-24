@@ -6,6 +6,7 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -115,6 +116,39 @@ public abstract class ProofOfWakesConfigureDialogs {
                 }
             });
             return builder.create();
+        }
+    }
+
+    public static class AddPowDialogFragment extends DialogFragment {
+        private PowUpdateCallback callback;
+        @Override
+        public Dialog onCreateDialog(Bundle sis) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+            builder.setTitle(R.string.powconfig_add);
+            builder.setItems(R.array.pow_types_name, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int which) {
+                    ProofOfWakes.ProofRequirement pr = new ProofOfWakes.ProofRequirement(which + 1);
+                    switch (pr.type) {
+                        case ProofOfWakes.ProofRequirement.TYPE_WAIT:
+                        case ProofOfWakes.ProofRequirement.TYPE_SHAKE:
+                        case ProofOfWakes.ProofRequirement.TYPE_MATH:
+                            AddPowDialogFragment.this.triggerCallback(pr);
+                            break;
+                        default:
+                            // TODO: Ask for more data.
+                    }
+                }
+            });
+            return builder.create();
+        }
+        public void setOnAdd(PowUpdateCallback callback) {
+            this.callback = callback;
+        }
+        protected void triggerCallback(ProofOfWakes.ProofRequirement pr) {
+            if (this.callback != null) {
+                this.callback.onSet(pr);
+            }
         }
     }
 }

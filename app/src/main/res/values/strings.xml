@@ -39,12 +39,25 @@
         <!-- TYPE_WAIT -->
         <item>Wait %1$s minutes.</item>
     </string-array>
+    <string-array name="pow_types_name">
+        <!-- TYPE_SHAKE - 1 -->
+        <item>Shake phone</item>
+        <!-- TYPE_QRCODE - 1 -->
+        <item>Scan a QR code</item>
+        <!-- TYPE_MATH - 1 -->
+        <item>Work out arithmetic problems</item>
+        <!-- TYPE_LOCATION - 1 -->
+        <item>Allow dismiss if you are not at home</item>
+        <!-- TYPE_WAIT - 1 -->
+        <item>Wait a period of time.</item>
+    </string-array>
 
     <string name="powconfig_shake_title">Shake phone</string>
     <string name="powconfig_wait_title">Wait</string>
 
     <string name="set">Set</string>
 
+    <string name="powconfig_add">Add Requirement for Dismiss</string>
     <string name="powconfig_shake_amount">Numbers of shake needed:</string>
     <string name="powconfig_set_difficulty">Set difficulty</string>
     <string name="powconfig_current_shake_difficulty">Current difficulty: %1$d/5</string>
