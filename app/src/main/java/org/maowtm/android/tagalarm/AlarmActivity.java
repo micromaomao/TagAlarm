@@ -218,7 +218,11 @@ public class AlarmActivity extends AppCompatActivity implements LoaderManager.Lo
             if (!added) {
                 view.findViewById(R.id.alarmitem_pow_list_desc)
                         .setVisibility(View.GONE);
+                ((TextView) view.findViewById(R.id.alarmitem_pow_add_text))
+                        .setText(R.string.alarmitem_pow_add);
             } else {
+                view.findViewById(R.id.alarmitem_pow_list_desc)
+                        .setVisibility(View.VISIBLE);
                 ((TextView) view.findViewById(R.id.alarmitem_pow_add_text))
                         .setText(R.string.alarmitem_pow_add_more);
             }
