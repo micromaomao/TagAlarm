@@ -62,4 +62,6 @@
     <string name="powconfig_set_difficulty">Set difficulty</string>
     <string name="powconfig_current_shake_difficulty">Current difficulty: %1$d/5</string>
     <string name="powconfig_wait_minutes">Minutes required:</string>
+
+    <string name="powstuff_wait">This thing will end in %1$d seconds&#8230;</string>
 </resources>

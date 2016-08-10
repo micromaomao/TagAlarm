@@ -34,6 +34,17 @@
                 android:id="@+id/dismiss"
                 android:text="@string/alert_dismiss" />
         </LinearLayout>
+        <!-- Proof stuff should goes here -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:id="@+id/powstuff_wait"
+            android:visibility="gone"
+            android:layout_margin="5dp"
+            android:text="@string/powstuff_wait" />
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
